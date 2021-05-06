@@ -9,7 +9,7 @@ describe("EYSS Swap", function () {
 	let addr2;
 	let addrs;
 
-	beforeEach(async function () {
+	before(async function () {
 		SwapEYSS = await ethers.getContractFactory("SwapEYSS_V1");
 		[owner, addr1, addr2, ...addrs] = await ethers.getSigners();
 		swapInstance = await upgrades.deployProxy(SwapEYSS, [addr1.address])
@@ -31,7 +31,7 @@ describe("EYSS Swap", function () {
 		});
 	});
 
-	describe("Transactions", function () {
+	describe("Transactions on V1", function () {
 		it("Should swap ETH for a token", async function () {
 			let originalBalance = Number(await ethers.utils.formatEther(await ethers.provider.getBalance(owner.address)))
 			let originalBalanceFee = Number(await ethers.utils.formatEther(await ethers.provider.getBalance(await swapInstance.feeRecipient())))
@@ -49,6 +49,7 @@ describe("EYSS Swap", function () {
 		});
 
 		it("Should swap ETH for more than one token", async function () {
+			this.timeout(0);
 			let originalBalance = Number(await ethers.utils.formatEther(await ethers.provider.getBalance(owner.address)))
 			let originalBalanceFee = Number(await ethers.utils.formatEther(await ethers.provider.getBalance(await swapInstance.feeRecipient())))
 			await swapInstance.swapTokens(
@@ -62,6 +63,22 @@ describe("EYSS Swap", function () {
 				})
 			expect(Number(await ethers.utils.formatEther(await ethers.provider.getBalance(owner.address)))).to.be.below(originalBalance);
 			expect(Number(await ethers.utils.formatEther(await ethers.provider.getBalance(await swapInstance.feeRecipient())))).to.be.above(originalBalanceFee)
+		});
+	});
+
+	describe("Upgrading to V2", function () {
+		it("Should get upgraded", async function () {
+			SwapEYSS = await ethers.getContractFactory("SwapEYSS_V2");
+			swapInstance = await upgrades.upgradeProxy(swapInstance.address, SwapEYSS);
+		});
+
+		it("Should have the same fee recipient", async function () {
+			expect(await swapInstance.feeRecipient()).to.equal(addr2.address);
+		});
+
+		it("Should still change the fee recipient", async function () {
+			await swapInstance.changeRecipient(addr1.address);
+			expect(await swapInstance.feeRecipient()).to.equal(addr1.address);
 		});
 	});
 });
