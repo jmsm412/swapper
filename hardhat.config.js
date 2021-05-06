@@ -1,5 +1,6 @@
 require("@nomiclabs/hardhat-waffle");
 require('@openzeppelin/hardhat-upgrades');
+require("hardhat-gas-reporter");
 /**
  * @type import('hardhat/config').HardhatUserConfig
  */
@@ -17,5 +18,8 @@ module.exports = {
 		},{
 			version: "0.7.3"
 		}]
+	},
+	gasReporter: {
+		currency: 'USD'
 	}
 };
