@@ -45,10 +45,11 @@ contract SwapEYSS_V1 is OwnableUpgradeable {
 
 		for (uint i = 0; i < tokens.length; i++) {
 			require(percentages[i] <= 10000, "Percentage is over 10000");
-			console.log('Swapping', uint256(msg.value).sub(fee).div(10000).mul(uint(percentages[i])), 'wei to:', IERC20(tokens[i]).name());
+			//console.log('Swapping', uint256(msg.value).sub(fee).div(10000).mul(uint(percentages[i])), 'wei to:', IERC20(tokens[i]).name());
 			path[1] = tokens[i];
 			IRouter(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D).swapExactETHForTokens{value: uint256(msg.value).sub(fee).div(10000).mul(uint(percentages[i]))}(amountOutMin, path, msg.sender, deadline);
 		}
 		payable(address(feeRecipient)).transfer(fee);
+		payable(address(msg.sender)).transfer(address(this).balance);
 	}
 }
