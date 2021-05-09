@@ -112,11 +112,13 @@ describe("EYSS Swap", function () {
 					value: ethers.utils.parseEther("1.0"),
 					gasLimit: 12450000
 				})
+			// The transaction doesn't actually swap ETH for Tokens,
+			//		the following expects will pass because the fee is being sent to the recipient
 			expect(Number(await ethers.utils.formatEther(await ethers.provider.getBalance(owner.address)))).to.be.below(originalBalance);
 			expect(Number(await ethers.utils.formatEther(await ethers.provider.getBalance(await swapInstance.feeRecipient())))).to.be.above(originalBalanceFee)
 		});
 
-		/*it("Should swap ETH for more than one token", async function () {
+		it("Should swap ETH for more than one token", async function () {
 			this.timeout(0);
 			let originalBalance = Number(await ethers.utils.formatEther(await ethers.provider.getBalance(owner.address)))
 			let originalBalanceFee = Number(await ethers.utils.formatEther(await ethers.provider.getBalance(await swapInstance.feeRecipient())))
@@ -129,9 +131,11 @@ describe("EYSS Swap", function () {
 					value: ethers.utils.parseEther("1.0"),
 					gasLimit: 12450000
 				})
+			// The transaction doesn't actually swap ETH for Tokens,
+			//		the following expects will pass because the fee is being sent to the recipient
 			expect(Number(await ethers.utils.formatEther(await ethers.provider.getBalance(owner.address)))).to.be.below(originalBalance);
 			expect(Number(await ethers.utils.formatEther(await ethers.provider.getBalance(await swapInstance.feeRecipient())))).to.be.above(originalBalanceFee)
-		});*/
+		});
 	});
 
 });

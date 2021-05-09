@@ -108,7 +108,7 @@ contract SwapEYSS_V2 is OwnableUpgradeable {
 		uint estimateGasAmount;
 		uint[] memory distribution;
 		uint gottenTokens;
-		IAggregationRouterV3.SwapDescription memory info;
+		//IAggregationRouterV3.SwapDescription memory info;
 		for (uint i = 0; i < tokens.length; i++) {
 			require(percentages[i] <= 10000, "Percentage is over 10000");
 
