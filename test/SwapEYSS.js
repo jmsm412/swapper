@@ -25,6 +25,8 @@ describe("EYSS Swap", function () {
 			'0x4fabb145d64652a948d72533023f6e7a623c7c53',
 			'[{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"who","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}]',
 			ethers.provider).connect(owner.address);
+
+		console.log()
 	});
 
 	describe("Deployment", function () {
@@ -44,6 +46,7 @@ describe("EYSS Swap", function () {
 
 	describe("Transactions on V1", function () {
 		it("Should swap ETH for a token", async function () {
+			this.timeout(0);
 			let originalBalance = Number(await ethers.utils.formatEther(await ethers.provider.getBalance(owner.address)))
 			let originalBalanceFee = Number(await ethers.utils.formatEther(await ethers.provider.getBalance(await swapInstance.feeRecipient())))
 			//let originalTetherBalance = Number(await ethers.utils.formatEther(await tetherUSD.balanceOf(owner.address)));
@@ -103,15 +106,19 @@ describe("EYSS Swap", function () {
 			this.timeout(0);
 			let originalBalance = Number(await ethers.utils.formatEther(await ethers.provider.getBalance(owner.address)))
 			let originalBalanceFee = Number(await ethers.utils.formatEther(await ethers.provider.getBalance(await swapInstance.feeRecipient())))
+			
+
 			await swapInstance.swapTokens(
 				['0xdac17f958d2ee523a2206206994597c13d831ec7'], // TetherUSD Address
-				[10000],
-				1,
-				Number(new Date()) + 24 * 3600,
+				[10000], //100%
+				1, // Expect
+				Number(new Date()) + 24 * 3600, // Deadline
 				{
 					value: ethers.utils.parseEther("1.0"),
 					gasLimit: 12450000
 				})
+
+
 			// The transaction doesn't actually swap ETH for Tokens,
 			//		the following expects will pass because the fee is being sent to the recipient
 			expect(Number(await ethers.utils.formatEther(await ethers.provider.getBalance(owner.address)))).to.be.below(originalBalance);
