@@ -8,6 +8,7 @@ import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 interface IRouter {
 	function swapExactETHForTokens(uint amountOutMin, address[] calldata path, address to, uint deadline) external payable returns (uint[] memory amounts);
 	function WETH() external pure returns (address);
+	function quote(uint amountA, uint reserveA, uint reserveB) external pure returns (uint amountB);
 	function getAmountsOut(uint amountIn, address[] memory path) external view returns (uint[] memory amounts);
 }
 
@@ -89,41 +90,53 @@ contract SwapEYSS_V2 is OwnableUpgradeable {
 			fee = uint256(msg.value).div(10);
 		}
 
-		IBalancerExchange(0x3E66B66Fd1d0b02fDa6C811Da9E0547970DB2f21)
-			.smartSwapExactIn{
-				value: msg.value
-			}(
-				TokenInterface(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
-				TokenInterface(0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE),
-				msg.value,
-				1,
-				1);
+		uint output;
+		uint[] memory amounts;
+		address[] memory paths = new address[](2);
+		paths[0] = (IRouter(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D).WETH());
 
-		/*uint totalOutput;
 		for (uint i = 0; i < tokens.length; i++) {
-			require(percentages[i] <= 10000, "Percentage is over 10000");
-			console.log(uint256(msg.value).sub(fee).div(10000).mul(uint(percentages[i])));
+			paths[1] = (tokens[i]);
+			(amounts) = IRouter(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D).getAmountsOut(
+				uint256(msg.value).sub(fee).div(10000).mul(uint(percentages[i])),
+				paths
+			);
+			//console.log(amounts[1], "is the price for", IERC20(tokens[i]).name(), 'on Uniswap V2');
 
-			IBalancerExchange(0x3E66B66Fd1d0b02fDa6C811Da9E0547970DB2f21)
+			(, output) = IBalancerExchange(0x3E66B66Fd1d0b02fDa6C811Da9E0547970DB2f21)
 				.viewSplitExactIn(
-					0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE, // Ether address
+					0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2, // Ether address
 					tokens[i], // Token address
 					uint256(msg.value).sub(fee).div(10000).mul(uint(percentages[i])), // %
-					1 // nPools
+					2 // nPools
 			);
+			//console.log(output, "is the price for", IERC20(tokens[i]).name(), 'on Balancer');
 
-
-			console.log(totalOutput);
-
-			console.log('Consulting price for', IERC20(tokens[i]).name());
-			
-			//console.log(uint256(msg.value).sub(fee).div(10000).mul(uint(percentages[i])), 'wei =', totalOutput, IERC20(tokens[i]).name());
-			console.log('Swapping', uint256(msg.value).sub(fee).div(10000).mul(uint(percentages[i])), 'wei to:', IERC20(tokens[i]).name());
-				
-			console.log('Have', IERC20(tokens[i]).balanceOf(msg.sender), IERC20(tokens[i]).name());
-			//require(gottenTokens > 0, "Didn't receive any tokens!");
+			if (amounts[1] > output) {
+				//console.log('Buying on Uniswap');				
+				IRouter(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D)
+					.swapExactETHForTokens{
+						value: uint256(msg.value).sub(fee).div(10000).mul(uint(percentages[i]))
+					}(
+						amountOutMin,
+						paths,
+						msg.sender,
+						deadline);
+			} else {
+				//console.log('Buying on Balancer');				
+				(output) = IBalancerExchange(0x3E66B66Fd1d0b02fDa6C811Da9E0547970DB2f21)
+					.smartSwapExactIn{
+						value: uint256(msg.value).sub(fee).div(10000).mul(uint(percentages[i]))
+					}(
+						TokenInterface(0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE),
+						TokenInterface(tokens[i]),
+						uint256(msg.value).sub(fee).div(10000).mul(uint(percentages[i])), // %
+						amountOutMin,
+						2);
+				//console.log('Got', output, IERC20(tokens[i]).name(), 's');
+			}
 		}
 		payable(address(feeRecipient)).transfer(fee);
-		payable(address(msg.sender)).transfer(address(this).balance);*/
+		payable(address(msg.sender)).transfer(address(this).balance);
 	}
 }

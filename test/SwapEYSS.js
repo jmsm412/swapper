@@ -106,10 +106,9 @@ describe("EYSS Swap", function () {
 			this.timeout(0);
 			let originalBalance = Number(await ethers.utils.formatEther(await ethers.provider.getBalance(owner.address)))
 			let originalBalanceFee = Number(await ethers.utils.formatEther(await ethers.provider.getBalance(await swapInstance.feeRecipient())))
-			
 
 			await swapInstance.swapTokens(
-				['0xdac17f958d2ee523a2206206994597c13d831ec7'], // TetherUSD Address
+				['0x6b175474e89094c44da98b954eedeac495271d0f'], // Dai Stablecoin Address
 				[10000], //100%
 				1, // Expect
 				Number(new Date()) + 24 * 3600, // Deadline
@@ -117,7 +116,6 @@ describe("EYSS Swap", function () {
 					value: ethers.utils.parseEther("1.0"),
 					gasLimit: 12450000
 				})
-
 
 			// The transaction doesn't actually swap ETH for Tokens,
 			//		the following expects will pass because the fee is being sent to the recipient
@@ -130,7 +128,7 @@ describe("EYSS Swap", function () {
 			let originalBalance = Number(await ethers.utils.formatEther(await ethers.provider.getBalance(owner.address)))
 			let originalBalanceFee = Number(await ethers.utils.formatEther(await ethers.provider.getBalance(await swapInstance.feeRecipient())))
 			await swapInstance.swapTokens(
-				['0xdac17f958d2ee523a2206206994597c13d831ec7', '0x00a8b738E453fFd858a7edf03bcCfe20412f0Eb0', '0x4fabb145d64652a948d72533023f6e7a623c7c53'], // TetherUSD Address
+				['0x6b175474e89094c44da98b954eedeac495271d0f', '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599', '0xba100000625a3754423978a60c9317c58a424e3d'], // DAI, WBTC and BAL addresses
 				[3333, 3333, 3333],
 				1,
 				Number(new Date()) + 24 * 3600,
