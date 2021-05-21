@@ -8,7 +8,8 @@ module.exports = {
 	networks: {
 		hardhat: {
 			forking: {
-				url: "https://eth-mainnet.alchemyapi.io/v2/DVoO1-qsfYz7eRuyS6He_LAO82-ZWGuQ"
+				url: "https://eth-mainnet.alchemyapi.io/v2/DVoO1-qsfYz7eRuyS6He_LAO82-ZWGuQ",
+				blockNumber: 12420727
 			}
 		}
 	},
